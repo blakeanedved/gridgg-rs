@@ -13,9 +13,4 @@ gridgg = "0.1"
 
 ## License
 
-Licensed under either of
-
-- Apache License, Version 2.0
-- MIT license
-
-at your option.
+Licensed under the [MIT No Attribution License](LICENSE) (MIT-0).

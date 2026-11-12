@@ -2,9 +2,9 @@
 name = "gridgg"
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.85"
+authors = ["Blake Nedved <blakeanedved@gmail.com>"]
 description = "A Rust library for working with grids."
-license = "MIT OR Apache-2.0"
+license = "MIT-0"
 repository = "https://github.com/blakeanedved/gridgg-rs"
 documentation = "https://docs.rs/gridgg"
 readme = "README.md"
