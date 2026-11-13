@@ -1,0 +1,487 @@
+openapi: 3.0.3
+info:
+  title: GRID - File Download API
+  description: |-
+    The purpose of File Download API is to list & serve available files that are related to GRID entities.
+  contact:
+    email: support@grid.gg
+    name: Support Team
+  version: v1
+servers:
+  - url: https://api.grid.gg/file-download
+    description: PRD
+tags:
+  - name: List Files
+    description: Check available files per Series.
+  - name: Grid Files
+    description: Download files provided by GRID
+  - name: Riot Files
+    description: Download files provided by Riot Games
+paths:
+  /list/{series_id}:
+    get:
+      tags:
+        - List Files
+      summary: List all available files for Series with given ID
+      operationId: listFiles
+      parameters:
+        - $ref: '#/components/parameters/SeriesIdPathParam'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  files:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FileInfo'
+        '400':
+          description: Required parameter has not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+        '401':
+          description: Unauthorized request. Missing API key.
+        '403':
+          description: Forbidden access to the Series data.
+        '5XX':
+          description: Server side processing issue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+      security:
+        - ApiKeyAuth: [ ]
+        - ApiKeyQueryParamAuth: []
+
+  /events/grid/series/{series_id}:
+    get:
+      tags:
+        - Grid Files
+      summary: Download zipped Series Events JSONL file
+      operationId: downloadGridEventFile
+      parameters:
+        - $ref: '#/components/parameters/SeriesIdPathParam'
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              $ref: '#/components/headers/Content-Type'
+            Content-Disposition:
+              $ref: '#/components/headers/Content-Disposition'
+            Content-Length:
+              $ref: '#/components/headers/Content-Length'
+          content:
+            application/zip:
+              schema:
+                type: object
+                format: binary
+        '400':
+          description: Required parameter has not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+        '401':
+          description: Unauthorized request. Missing API key.
+        '403':
+          description: Forbidden access to the Series data.
+        '404':
+          description: File has not been found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+        '5XX':
+          description: Server side processing issue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+      security:
+        - ApiKeyAuth: [ ]
+        - ApiKeyQueryParamAuth: []
+
+  /end-state/grid/series/{series_id}:
+    get:
+      tags:
+        - Grid Files
+      summary: Download Series End State JSON file
+      operationId: downloadGridEndStateFile
+      parameters:
+        - $ref: '#/components/parameters/SeriesIdPathParam'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                format: string
+        '400':
+          description: Required parameter has not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+        '401':
+          description: Unauthorized request. Missing API key.
+        '403':
+          description: Forbidden access to the Series data.
+        '404':
+          description: File has not been found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+        '5XX':
+          description: Server side processing issue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+      security:
+        - ApiKeyAuth: [ ]
+        - ApiKeyQueryParamAuth: []
+
+  /events/riot/series/{series_id}:
+    get:
+      tags:
+        - Riot Files
+      summary: Download zipped Series Events JSONL file
+      operationId: downloadRiotEventFile
+      parameters:
+        - $ref: '#/components/parameters/SeriesIdPathParam'
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              $ref: '#/components/headers/Content-Type'
+            Content-Disposition:
+              $ref: '#/components/headers/Content-Disposition'
+            Content-Length:
+              $ref: '#/components/headers/Content-Length'
+          content:
+            application/zip:
+              schema:
+                type: object
+                format: binary
+        '400':
+          description: Required parameter has not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+        '401':
+          description: Unauthorized request. Missing API key.
+        '403':
+          description: Forbidden access to the Series data.
+        '404':
+          description: File has not been found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+        '5XX':
+          description: Server side processing issue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+      security:
+        - ApiKeyAuth: [ ]
+        - ApiKeyQueryParamAuth: []
+
+  /events/riot/series/{series_id}/games/{sequence_number}:
+    get:
+      tags:
+        - Riot Files
+      summary: Download Series Game Events JSONL file
+      operationId: downloadRiotGameEventFile
+      parameters:
+        - $ref: '#/components/parameters/SeriesIdPathParam'
+        - $ref: '#/components/parameters/GameSequenceNumberPathParam'
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              $ref: '#/components/headers/Content-Type'
+            Content-Disposition:
+              $ref: '#/components/headers/Content-Disposition'
+            Content-Length:
+              $ref: '#/components/headers/Content-Length'
+          content:
+            application/json-lines:
+              schema:
+                type: string
+        '400':
+          description: Required parameter has not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+        '401':
+          description: Unauthorized request. Missing API key.
+        '403':
+          description: Forbidden access to the Series data.
+        '404':
+          description: File has not been found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+        '5XX':
+          description: Server side processing issue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+      security:
+        - ApiKeyAuth: [ ]
+        - ApiKeyQueryParamAuth: []
+
+  /end-state/riot/series/{series_id}:
+    get:
+      tags:
+        - Riot Files
+      summary: Download zipped Series End State JSON file
+      operationId: downloadRiotEndStateFile
+      parameters:
+        - $ref: '#/components/parameters/SeriesIdPathParam'
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              $ref: '#/components/headers/Content-Type'
+            Content-Disposition:
+              $ref: '#/components/headers/Content-Disposition'
+            Content-Length:
+              $ref: '#/components/headers/Content-Length'
+          content:
+            application/zip:
+              schema:
+                type: object
+                format: binary
+        '400':
+          description: Required parameter has not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+        '401':
+          description: Unauthorized request. Missing API key.
+        '403':
+          description: Forbidden access to the Series data.
+        '404':
+          description: File has not been found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+        '5XX':
+          description: Server side processing issue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+      security:
+        - ApiKeyAuth: [ ]
+        - ApiKeyQueryParamAuth: []
+
+  /end-state/riot/series/{series_id}/games/{sequence_number}/{info_type}:
+    get:
+      tags:
+        - Riot Files
+      summary: Download Series Game End State JSON file
+      operationId: downloadRiotGameStateFile
+      parameters:
+        - $ref: '#/components/parameters/SeriesIdPathParam'
+        - $ref: '#/components/parameters/GameSequenceNumberPathParam'
+        - in: path
+          name: info_type
+          description: End state file type
+          required: true
+          schema:
+            type: string
+            enum:
+              - summary
+              - details
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              $ref: '#/components/headers/Content-Type'
+            Content-Disposition:
+              $ref: '#/components/headers/Content-Disposition'
+            Content-Length:
+              $ref: '#/components/headers/Content-Length'
+          content:
+            application/json:
+              schema:
+                type: object
+                format: string
+        '400':
+          description: Required parameter has not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+        '401':
+          description: Unauthorized request. Missing API key.
+        '403':
+          description: Forbidden access to the Series data.
+        '404':
+          description: File has not been found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+        '5XX':
+          description: Server side processing issue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+      security:
+        - ApiKeyAuth: [ ]
+        - ApiKeyAuth: []
+
+  /replay/riot/series/{series_id}/games/{sequence_number}:
+    get:
+      tags:
+        - Riot Files
+      summary: Download Series Game replay file
+      operationId: downloadRiotGameReplayFile
+      parameters:
+        - $ref: '#/components/parameters/SeriesIdPathParam'
+        - $ref: '#/components/parameters/GameSequenceNumberPathParam'
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              $ref: '#/components/headers/Content-Type'
+            Content-Disposition:
+              $ref: '#/components/headers/Content-Disposition'
+            Content-Length:
+              $ref: '#/components/headers/Content-Length'
+          content:
+            application/octet-stream:
+              schema:
+                format: binary
+        '400':
+          description: Required parameter has not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+        '401':
+          description: Unauthorized request. Missing API key.
+        '403':
+          description: Forbidden access to the Series data.
+        '404':
+          description: File has not been found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+        '5XX':
+          description: Server side processing issue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorMessage'
+      security:
+        - ApiKeyAuth: [ ]
+        - ApiKeyQueryParamAuth: []
+
+components:
+  headers:
+    Content-Type:
+      schema:
+        type: string
+      description: Type of response.
+    Content-Disposition:
+      schema:
+        type: string
+      description: Attachment metadata.
+    Content-Length:
+      schema:
+        type: string
+      description: Length of the response.
+  schemas:
+    FileInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          description: |
+            File identification based on its type:
+            - events-riot-compressed
+            - state-riot-compressed
+            - events-grid-compressed
+            - state-grid
+            - events-riot-game-{x}
+            - state-summary-riot-game-{x}
+            - state-details-riot-game-{x}
+            - replay-riot-game-{x}
+        description:
+          type: string
+          description: Short file description.
+        status:
+          type: string
+          description: |
+            Status of the Series that file is referring to:
+            - match-not-started
+            - match-in-progress
+            - processing
+            - ready
+            - file-not-available
+        fileName:
+          type: string
+          description: Name of the file.
+        fullURL:
+          type: string
+          description: File URL.
+    ApiErrorMessage:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message.
+
+  parameters:
+    SeriesIdPathParam:
+      in: path
+      name: series_id
+      schema:
+        type: string
+      required: true
+      description: The ID of the Series
+    GameSequenceNumberPathParam:
+      in: path
+      name: sequence_number
+      schema:
+        type: integer
+      required: true
+      description: The sequence number of the Game of the Series
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      name: x-api-key
+      in: header
+      description: Header provided api authentication key
+    ApiKeyQueryParamAuth:
+      type: apiKey
+      name: key
+      in: query
+      description: Query parameter provided api authentication key

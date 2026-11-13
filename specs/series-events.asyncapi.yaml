@@ -1,0 +1,1078 @@
+# GRID Live Data Feed — Series Events API (AsyncAPI 3.0)
+asyncapi: 3.0.0
+info:
+  title: GRID Live Data Feed — Series Events API
+  version: 1.0.0
+  description: 'WebSocket feed that pushes Transactions (each containing one or more Events) as they occur during a live series.
+    Generated from the GRID Data Portal API Reference (2026-11-12).
+
+
+    Connection limits (per API key): connection attempts per minute and simultaneous connections are capped (GRID''s docs
+    give the defaults only as placeholders); a connection is closed automatically 24 hours after the last activity — any Data
+    or Control frame from either side resets the timer, so send periodic WebSocket Ping frames to keep idle connections open.
+    All connections must use wss://.
+
+
+    Reverted events: any event can be reverted (e.g. admin reset). A reverted event has the same structure, but its action
+    is prefixed with ''!'' (e.g. type `player-!killed-player`, action `!killed`), `revertedEventId` points at the original
+    event, and delta values are the inverse of the original (e.g. a kill count of -1 instead of +1).
+
+
+    State objects (`seriesState`, `seriesStateDelta`, entity `state`/`stateDelta`) follow the Series State API GraphQL model
+    (see series-state.graphql). States nest: Series → Games → Segments (e.g. round) → Segments (e.g. buy phase) …'
+servers:
+  production:
+    host: api.grid.gg
+    protocol: wss
+    description: GRID Live Data Feed
+    security:
+    - $ref: '#/components/securitySchemes/apiKeyQuery'
+channels:
+  seriesEvents:
+    address: /live-data-feed/series/{seriesId}
+    description: 'Series Events stream for one series. Example: wss://api.grid.gg/live-data-feed/series/1?key=<API_KEY>'
+    parameters:
+      seriesId:
+        description: GRID Series ID (from the Central Data Feed).
+    messages:
+      transaction:
+        $ref: '#/components/messages/Transaction'
+operations:
+  receiveTransactions:
+    action: receive
+    channel:
+      $ref: '#/channels/seriesEvents'
+    summary: Receive transactions for a series, in order.
+    messages:
+    - $ref: '#/channels/seriesEvents/messages/transaction'
+components:
+  securitySchemes:
+    apiKeyQuery:
+      type: httpApiKey
+      name: key
+      in: query
+      description: Personal GRID API key passed as the `key` query parameter.
+  messages:
+    Transaction:
+      name: Transaction
+      contentType: application/json
+      summary: A single package of data sent over the WebSocket; all included events are processed together in order.
+      payload:
+        $ref: '#/components/schemas/Transaction'
+  schemas:
+    Transaction:
+      type: object
+      description: Metadata plus an ordered array of events.
+      required:
+      - id
+      - occurredAt
+      - publishedAt
+      - seriesId
+      - sequenceNumber
+      - events
+      properties:
+        id:
+          type: string
+          description: Unique ID of the transaction
+        correlationId:
+          type: string
+          description: Internal reference for troubleshooting
+        occurredAt:
+          type: string
+          description: ISO 8601 timestamp when the transaction occurred
+          format: date-time
+        publishedAt:
+          type: string
+          description: ISO 8601 timestamp when the transaction was published to the WebSocket
+          format: date-time
+        seriesId:
+          type: string
+          description: ID of the series
+        sequenceNumber:
+          type: integer
+          description: Order of the transaction in the feed for the series (may skip if filtered)
+        sessionSequenceNumber:
+          type: integer
+          description: Order of the transaction in the context of the current consumer session
+        events:
+          type: array
+          description: Array of one or more event objects
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Event'
+    Event:
+      type: object
+      description: A single, discrete change or action within the series.
+      required:
+      - id
+      - type
+      - actor
+      - action
+      - target
+      properties:
+        id:
+          type: string
+          description: Unique ID of the event
+        type:
+          type: string
+          description: Event type '{actor}-{action}-{target}'. See EventType for the documented values; reverted events use
+            '!' before the action (e.g. 'player-!killed-player'). Treat unknown values as forward-compatible.
+          examples:
+          - player-killed-player
+          - player-!killed-player
+        includesFullState:
+          type: boolean
+          description: Whether the event includes the full state (based on configuration)
+        actor:
+          $ref: '#/components/schemas/Entity'
+        action:
+          type: string
+          description: The action performed (e.g. 'killed', 'planted'); prefixed with '!' for reverted events
+        target:
+          $ref: '#/components/schemas/Entity'
+        seriesStateDelta:
+          type: object
+          description: Fields that changed at the series level as a result of this event (Series State model)
+        seriesState:
+          type: object
+          description: Complete series state after the event, if included (Series State model)
+        revertedEventId:
+          type: string
+          description: ID of the event this event reverts; only present on reverted events
+    Entity:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          description: Type of the entity (e.g. player, team, game)
+        id:
+          type: string
+          description: Unique series-level entity ID
+        stateDelta:
+          type: object
+          description: Fields changed at the entity level
+        state:
+          type: object
+          description: Entity state after the event
+    EventType:
+      type: string
+      description: Documented event types (non-reverted form). See x-grid-event-types for actor/action/target/titles of each.
+      enum:
+      - grid-started-feed
+      - grid-ended-feed
+      - grid-invalidated-series
+      - grid-validated-series
+      - tournament-started-series
+      - tournament-ended-series
+      - series-started-game
+      - series-ended-game
+      - team-won-game
+      - team-won-series
+      - player-killed-player
+      - player-teamkilled-player
+      - player-selfkilled-player
+      - player-rejoined-series
+      - player-left-series
+      - player-revived-player
+      - game-set-clock
+      - game-started-clock
+      - game-stopped-clock
+      - freezetime-ended-timeout
+      - freezetime-started-timeout
+      - game-ended-round
+      - game-killed-ATierNPC
+      - game-killed-player
+      - game-killed-STierNPC
+      - game-respawned-ATierNPC
+      - game-respawned-player
+      - game-respawned-roshan
+      - game-respawned-STierNPC
+      - game-set-gameClock
+      - game-set-npcRespawnClock
+      - game-started-npcRespawnClock
+      - game-started-round
+      - game-stopped-npcRespawnClock
+      - player-!purchased-item
+      - player-captured-outpost
+      - player-completed-beginDefuseBomb
+      - player-completed-beginDefuseWithKit
+      - player-completed-beginDefuseWithoutKit
+      - player-completed-captureUltimateOrb
+      - player-completed-defuseBomb
+      - player-completed-destroyAncient
+      - player-completed-destroyBarracksMelee
+      - player-completed-destroyBarracksRange
+      - player-completed-destroyDefuser
+      - player-completed-destroyTower
+      - player-completed-explodeBomb
+      - player-completed-increaseLevel
+      - player-completed-plantBomb
+      - player-completed-plantDefuser
+      - player-completed-reachDefuseBombCheckpoint
+      - player-completed-slayBaron
+      - player-completed-slayChemtechDrake
+      - player-completed-slayCloudDrake
+      - player-completed-slayElderDragon
+      - player-completed-slayHextechDrake
+      - player-completed-slayInfernalDrake
+      - player-completed-slayMountainDrake
+      - player-completed-slayOceanDrake
+      - player-completed-slayRiftHerald
+      - player-completed-slayRoshan
+      - player-completed-slayVoidGrub
+      - player-completed-stopDefuseBomb
+      - player-damaged-player
+      - player-destroyed-ancient
+      - player-destroyed-barracksMelee
+      - player-destroyed-barracksRange
+      - player-destroyed-tower
+      - player-dropped-item
+      - player-equipped-item
+      - player-lost-item
+      - player-multikilled-player
+      - player-pickedUp-item
+      - player-purchased-item
+      - player-selfdamaged-player
+      - player-selfrevived-player
+      - player-sold-item
+      - player-stashed-item
+      - player-teamdamaged-player
+      - player-unequipped-item
+      - player-unstashed-item
+      - player-used-ability
+      - player-used-item
+      - round-ended-freezetime
+      - round-ended-preparationPhase
+      - round-started-freezetime
+      - round-started-preparationPhase
+      - series-paused-game
+      - series-picked-map
+      - series-resumed-game
+      - team-banned-character
+      - team-banned-map
+      - team-captured-outpost
+      - team-completed-destroyAncient
+      - team-completed-destroyBarracksMelee
+      - team-completed-destroyBarracksRange
+      - team-completed-destroyTower
+      - team-completed-slayRoshan
+      - team-destroyed-ancient
+      - team-destroyed-barracksMelee
+      - team-destroyed-barracksRange
+      - team-destroyed-tower
+      - team-killed-player
+      - team-killed-roshan
+      - team-picked-character
+      - team-picked-map
+      - team-won-round
+x-grid-event-types:
+- type: grid-started-feed
+  actor: grid
+  action: started
+  target: feed
+  description: Feed created (first event)
+  titles:
+  - All
+- type: grid-ended-feed
+  actor: grid
+  action: ended
+  target: feed
+  description: Feed ended (last event)
+  titles:
+  - All
+- type: grid-invalidated-series
+  actor: grid
+  action: invalidated
+  target: series
+  description: Series state cannot be confirmed
+  titles:
+  - All
+- type: grid-validated-series
+  actor: grid
+  action: validated
+  target: series
+  description: Series state is correct again
+  titles:
+  - All
+- type: tournament-started-series
+  actor: tournament
+  action: started
+  target: series
+  description: Series begins as part of a tournament
+  titles:
+  - All
+- type: tournament-ended-series
+  actor: tournament
+  action: ended
+  target: series
+  description: Series in a tournament finished
+  titles:
+  - All
+- type: series-started-game
+  actor: series
+  action: started
+  target: game
+  description: Game started in a series
+  titles:
+  - All
+- type: series-ended-game
+  actor: series
+  action: ended
+  target: game
+  description: Game ended in a series
+  titles:
+  - All
+- type: team-won-game
+  actor: team
+  action: won
+  target: game
+  description: Team won a game
+  titles:
+  - All
+- type: team-won-series
+  actor: team
+  action: won
+  target: series
+  description: Team won a series
+  titles:
+  - All
+- type: player-killed-player
+  actor: player
+  action: killed
+  target: player
+  description: Player killed an opponent
+  titles:
+  - All
+- type: player-teamkilled-player
+  actor: player
+  action: teamkilled
+  target: player
+  description: Player killed a teammate
+  titles:
+  - All
+- type: player-selfkilled-player
+  actor: player
+  action: selfkilled
+  target: player
+  description: Player killed themselves
+  titles:
+  - All
+- type: player-rejoined-series
+  actor: player
+  action: rejoined
+  target: series
+  description: Player rejoined after being inactive
+  titles:
+  - All
+- type: player-left-series
+  actor: player
+  action: left
+  target: series
+  description: Player left the series
+  titles:
+  - All
+- type: player-revived-player
+  actor: player
+  action: revived
+  target: player
+  description: Player revived a teammate
+  titles:
+  - All
+- type: game-set-clock
+  actor: game
+  action: set
+  target: clock
+  description: Game clock set anew
+  titles:
+  - All
+- type: game-started-clock
+  actor: game
+  action: started
+  target: clock
+  description: Game clock started
+  titles:
+  - All
+- type: game-stopped-clock
+  actor: game
+  action: stopped
+  target: clock
+  description: Game clock stopped
+  titles:
+  - All
+- type: freezetime-ended-timeout
+  actor: freezetime
+  action: ended
+  target: timeout
+  description: Timeout ended during freezetime
+  titles:
+  - CS2
+  - VALORANT
+- type: freezetime-started-timeout
+  actor: freezetime
+  action: started
+  target: timeout
+  description: Timeout started during freezetime
+  titles:
+  - CS2
+  - VALORANT
+- type: game-ended-round
+  actor: game
+  action: ended
+  target: round
+  description: Round ended
+  titles:
+  - CS2
+  - VALORANT
+  - Rainbow Six
+- type: game-killed-ATierNPC
+  actor: game
+  action: killed
+  target: ATierNPC
+  description: A Tier NPC killed a player
+  titles:
+  - LoL
+- type: game-killed-player
+  actor: game
+  action: killed
+  target: player
+  description: Game killed a player (environmental death)
+  titles:
+  - CS2
+  - DOTA
+  - VALORANT
+  - Rainbow Six
+- type: game-killed-STierNPC
+  actor: game
+  action: killed
+  target: STierNPC
+  description: S Tier NPC killed a player
+  titles:
+  - LoL
+- type: game-respawned-ATierNPC
+  actor: game
+  action: respawned
+  target: ATierNPC
+  description: A Tier NPC respawned
+  titles:
+  - LoL
+- type: game-respawned-player
+  actor: game
+  action: respawned
+  target: player
+  description: Player respawned
+  titles:
+  - DOTA
+  - LoL
+- type: game-respawned-roshan
+  actor: game
+  action: respawned
+  target: roshan
+  description: Roshan respawned
+  titles:
+  - DOTA
+- type: game-respawned-STierNPC
+  actor: game
+  action: respawned
+  target: STierNPC
+  description: S Tier NPC respawned
+  titles:
+  - LoL
+- type: game-set-gameClock
+  actor: game
+  action: set
+  target: gameClock
+  description: Game clock set anew
+  titles:
+  - DOTA
+  - VALORANT
+- type: game-set-npcRespawnClock
+  actor: game
+  action: set
+  target: npcRespawnClock
+  description: NPC respawn clock set
+  titles:
+  - DOTA
+  - LoL
+- type: game-started-npcRespawnClock
+  actor: game
+  action: started
+  target: npcRespawnClock
+  description: NPC respawn clock started
+  titles:
+  - DOTA
+  - LoL
+- type: game-started-round
+  actor: game
+  action: started
+  target: round
+  description: Round started
+  titles:
+  - CS2
+  - VALORANT
+  - Rainbow Six
+- type: game-stopped-npcRespawnClock
+  actor: game
+  action: stopped
+  target: npcRespawnClock
+  description: NPC respawn clock stopped
+  titles:
+  - DOTA
+  - LoL
+- type: player-!purchased-item
+  actor: player
+  action: '!purchased'
+  target: item
+  description: Player undid a purchase
+  titles:
+  - LoL
+- type: player-captured-outpost
+  actor: player
+  action: captured
+  target: outpost
+  description: Player captured an outpost
+  titles:
+  - DOTA
+- type: player-completed-beginDefuseBomb
+  actor: player
+  action: completed
+  target: beginDefuseBomb
+  description: Player started defusing the Spike
+  titles:
+  - VALORANT
+- type: player-completed-beginDefuseWithKit
+  actor: player
+  action: completed
+  target: beginDefuseWithKit
+  description: Player started defusing bomb with kit
+  titles:
+  - CS2
+- type: player-completed-beginDefuseWithoutKit
+  actor: player
+  action: completed
+  target: beginDefuseWithoutKit
+  description: Player started defusing bomb without kit
+  titles:
+  - CS2
+- type: player-completed-captureUltimateOrb
+  actor: player
+  action: completed
+  target: captureUltimateOrb
+  description: Player captured Ultimate Orb
+  titles:
+  - VALORANT
+- type: player-completed-defuseBomb
+  actor: player
+  action: completed
+  target: defuseBomb
+  description: Player defused the Spike
+  titles:
+  - VALORANT
+- type: player-completed-destroyAncient
+  actor: player
+  action: completed
+  target: destroyAncient
+  description: Player destroyed the Ancient
+  titles:
+  - DOTA
+- type: player-completed-destroyBarracksMelee
+  actor: player
+  action: completed
+  target: destroyBarracksMelee
+  description: Player destroyed Melee Barracks
+  titles:
+  - DOTA
+- type: player-completed-destroyBarracksRange
+  actor: player
+  action: completed
+  target: destroyBarracksRange
+  description: Player destroyed Range Barracks
+  titles:
+  - DOTA
+- type: player-completed-destroyDefuser
+  actor: player
+  action: completed
+  target: destroyDefuser
+  description: Player completed counter-defuse
+  titles:
+  - Rainbow Six
+- type: player-completed-destroyTower
+  actor: player
+  action: completed
+  target: destroyTower
+  description: Player destroyed a tower
+  titles:
+  - DOTA
+  - LoL
+- type: player-completed-explodeBomb
+  actor: player
+  action: completed
+  target: explodeBomb
+  description: Player's bomb exploded
+  titles:
+  - CS2
+  - VALORANT
+- type: player-completed-increaseLevel
+  actor: player
+  action: completed
+  target: increaseLevel
+  description: Player gained a level
+  titles:
+  - DOTA
+  - LoL
+- type: player-completed-plantBomb
+  actor: player
+  action: completed
+  target: plantBomb
+  description: Player finished planting the bomb/Spike
+  titles:
+  - CS2
+  - VALORANT
+- type: player-completed-plantDefuser
+  actor: player
+  action: completed
+  target: plantDefuser
+  description: Player completed planting the defuser
+  titles:
+  - Rainbow Six
+- type: player-completed-reachDefuseBombCheckpoint
+  actor: player
+  action: completed
+  target: reachDefuseBombCheckpoint
+  description: Player reached halfway point of Spike defuse
+  titles:
+  - VALORANT
+- type: player-completed-slayBaron
+  actor: player
+  action: completed
+  target: slayBaron
+  description: Player killed Baron Nashor
+  titles:
+  - LoL
+- type: player-completed-slayChemtechDrake
+  actor: player
+  action: completed
+  target: slayChemtechDrake
+  description: Player killed Chemtech Drake
+  titles:
+  - LoL
+- type: player-completed-slayCloudDrake
+  actor: player
+  action: completed
+  target: slayCloudDrake
+  description: Player killed Cloud Drake
+  titles:
+  - LoL
+- type: player-completed-slayElderDragon
+  actor: player
+  action: completed
+  target: slayElderDragon
+  description: Player killed Elder Dragon
+  titles:
+  - LoL
+- type: player-completed-slayHextechDrake
+  actor: player
+  action: completed
+  target: slayHextechDrake
+  description: Player killed Hextech Drake
+  titles:
+  - LoL
+- type: player-completed-slayInfernalDrake
+  actor: player
+  action: completed
+  target: slayInfernalDrake
+  description: Player killed Infernal Drake
+  titles:
+  - LoL
+- type: player-completed-slayMountainDrake
+  actor: player
+  action: completed
+  target: slayMountainDrake
+  description: Player killed Mountain Drake
+  titles:
+  - LoL
+- type: player-completed-slayOceanDrake
+  actor: player
+  action: completed
+  target: slayOceanDrake
+  description: Player killed Ocean Drake
+  titles:
+  - LoL
+- type: player-completed-slayRiftHerald
+  actor: player
+  action: completed
+  target: slayRiftHerald
+  description: Player killed Rift Herald
+  titles:
+  - LoL
+- type: player-completed-slayRoshan
+  actor: player
+  action: completed
+  target: slayRoshan
+  description: Player killed Roshan
+  titles:
+  - DOTA
+- type: player-completed-slayVoidGrub
+  actor: player
+  action: completed
+  target: slayVoidGrub
+  description: Player killed Void Grub
+  titles:
+  - LoL
+- type: player-completed-stopDefuseBomb
+  actor: player
+  action: completed
+  target: stopDefuseBomb
+  description: Player stopped defusing the Spike
+  titles:
+  - VALORANT
+- type: player-damaged-player
+  actor: player
+  action: damaged
+  target: player
+  description: Player damaged another player (knockdown)
+  titles:
+  - PUBG
+  - Rainbow Six
+- type: player-destroyed-ancient
+  actor: player
+  action: destroyed
+  target: ancient
+  description: Player destroyed the Ancient
+  titles:
+  - DOTA
+- type: player-destroyed-barracksMelee
+  actor: player
+  action: destroyed
+  target: barracksMelee
+  description: Player destroyed Melee Barracks
+  titles:
+  - DOTA
+- type: player-destroyed-barracksRange
+  actor: player
+  action: destroyed
+  target: barracksRange
+  description: Player destroyed Range Barracks
+  titles:
+  - DOTA
+- type: player-destroyed-tower
+  actor: player
+  action: destroyed
+  target: tower
+  description: Player destroyed a tower
+  titles:
+  - DOTA
+  - LoL
+- type: player-dropped-item
+  actor: player
+  action: dropped
+  target: item
+  description: Player dropped an item
+  titles:
+  - CS2
+  - VALORANT
+  - Rainbow Six
+  - LoL
+- type: player-equipped-item
+  actor: player
+  action: equipped
+  target: item
+  description: Player equipped an item
+  titles:
+  - DOTA
+- type: player-lost-item
+  actor: player
+  action: lost
+  target: item
+  description: Player lost an item
+  titles:
+  - DOTA
+  - LoL
+- type: player-multikilled-player
+  actor: player
+  action: multikilled
+  target: player
+  description: Player achieved a multi-kill
+  titles:
+  - DOTA
+- type: player-pickedUp-item
+  actor: player
+  action: pickedUp
+  target: item
+  description: Player picked up an item
+  titles:
+  - CS2
+  - VALORANT
+  - Rainbow Six
+  - LoL
+- type: player-purchased-item
+  actor: player
+  action: purchased
+  target: item
+  description: Player purchased an item
+  titles:
+  - CS2
+  - LoL
+- type: player-revived-player
+  actor: player
+  action: revived
+  target: player
+  description: Player revived another player from DBNO
+  titles:
+  - Rainbow Six
+- type: player-selfdamaged-player
+  actor: player
+  action: selfdamaged
+  target: player
+  description: Player self-damaged (DBNO)
+  titles:
+  - Rainbow Six
+- type: player-selfrevived-player
+  actor: player
+  action: selfrevived
+  target: player
+  description: Player revived themselves from DBNO
+  titles:
+  - Rainbow Six
+- type: player-sold-item
+  actor: player
+  action: sold
+  target: item
+  description: Player sold an item
+  titles:
+  - LoL
+- type: player-stashed-item
+  actor: player
+  action: stashed
+  target: item
+  description: Player stashed an item
+  titles:
+  - DOTA
+- type: player-teamdamaged-player
+  actor: player
+  action: teamdamaged
+  target: player
+  description: Player team-damaged another player (DBNO)
+  titles:
+  - Rainbow Six
+- type: player-unequipped-item
+  actor: player
+  action: unequipped
+  target: item
+  description: Player unequipped an item
+  titles:
+  - DOTA
+- type: player-unstashed-item
+  actor: player
+  action: unstashed
+  target: item
+  description: Player unstashed an item
+  titles:
+  - DOTA
+- type: player-used-ability
+  actor: player
+  action: used
+  target: ability
+  description: Player used an ability
+  titles:
+  - VALORANT
+  - DOTA
+  - LoL
+- type: player-used-item
+  actor: player
+  action: used
+  target: item
+  description: Player used an item
+  titles:
+  - DOTA
+  - LoL
+- type: round-ended-freezetime
+  actor: round
+  action: ended
+  target: freezetime
+  description: End of buy/prep phase
+  titles:
+  - CS2
+  - VALORANT
+- type: round-ended-preparationPhase
+  actor: round
+  action: ended
+  target: preparationPhase
+  description: Preparation phase ended
+  titles:
+  - Rainbow Six
+- type: round-started-freezetime
+  actor: round
+  action: started
+  target: freezetime
+  description: Start of buy/prep phase
+  titles:
+  - CS2
+  - VALORANT
+- type: round-started-preparationPhase
+  actor: round
+  action: started
+  target: preparationPhase
+  description: Preparation phase started
+  titles:
+  - Rainbow Six
+- type: series-paused-game
+  actor: series
+  action: paused
+  target: game
+  description: Game paused
+  titles:
+  - CS2
+  - DOTA
+  - LoL
+  - Rainbow Six
+- type: series-picked-map
+  actor: series
+  action: picked
+  target: map
+  description: Map left over and will be played
+  titles:
+  - CS2
+  - Rainbow Six
+- type: series-resumed-game
+  actor: series
+  action: resumed
+  target: game
+  description: Game resumed after pause
+  titles:
+  - CS2
+  - DOTA
+  - LoL
+  - Rainbow Six
+- type: team-banned-character
+  actor: team
+  action: banned
+  target: character
+  description: Team banned a character/operator
+  titles:
+  - DOTA
+  - LoL
+  - Rainbow Six
+- type: team-banned-map
+  actor: team
+  action: banned
+  target: map
+  description: Team banned a map during draft
+  titles:
+  - CS2
+  - Rainbow Six
+- type: team-captured-outpost
+  actor: team
+  action: captured
+  target: outpost
+  description: Team captured an outpost
+  titles:
+  - DOTA
+- type: team-completed-destroyAncient
+  actor: team
+  action: completed
+  target: destroyAncient
+  description: Team destroyed the Ancient
+  titles:
+  - DOTA
+- type: team-completed-destroyBarracksMelee
+  actor: team
+  action: completed
+  target: destroyBarracksMelee
+  description: Team destroyed Melee Barracks
+  titles:
+  - DOTA
+- type: team-completed-destroyBarracksRange
+  actor: team
+  action: completed
+  target: destroyBarracksRange
+  description: Team destroyed Range Barracks
+  titles:
+  - DOTA
+- type: team-completed-destroyTower
+  actor: team
+  action: completed
+  target: destroyTower
+  description: Team destroyed a tower
+  titles:
+  - DOTA
+  - LoL
+- type: team-completed-slayRoshan
+  actor: team
+  action: completed
+  target: slayRoshan
+  description: Team killed Roshan
+  titles:
+  - DOTA
+- type: team-destroyed-ancient
+  actor: team
+  action: destroyed
+  target: ancient
+  description: Team destroyed the Ancient
+  titles:
+  - DOTA
+- type: team-destroyed-barracksMelee
+  actor: team
+  action: destroyed
+  target: barracksMelee
+  description: Team destroyed Melee Barracks
+  titles:
+  - DOTA
+- type: team-destroyed-barracksRange
+  actor: team
+  action: destroyed
+  target: barracksRange
+  description: Team destroyed Range Barracks
+  titles:
+  - DOTA
+- type: team-destroyed-tower
+  actor: team
+  action: destroyed
+  target: tower
+  description: Team destroyed a tower
+  titles:
+  - DOTA
+  - LoL
+- type: team-killed-player
+  actor: team
+  action: killed
+  target: player
+  description: Team killed a player
+  titles:
+  - DOTA
+  - LoL
+- type: team-killed-roshan
+  actor: team
+  action: killed
+  target: roshan
+  description: Team killed Roshan
+  titles:
+  - DOTA
+- type: team-picked-character
+  actor: team
+  action: picked
+  target: character
+  description: Team picked a character/operator
+  titles:
+  - DOTA
+  - LoL
+  - Rainbow Six
+- type: team-picked-map
+  actor: team
+  action: picked
+  target: map
+  description: Team picked a map during draft
+  titles:
+  - CS2
+  - Rainbow Six
+- type: team-won-round
+  actor: team
+  action: won
+  target: round
+  description: Team won a round
+  titles:
+  - CS2
+  - VALORANT
+  - Rainbow Six
