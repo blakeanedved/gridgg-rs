@@ -1,24 +1,63 @@
 [package]
 name = "gridgg"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 authors = ["Blake Nedved <blakeanedved@gmail.com>"]
-description = "A Rust library for working with grids."
+description = "Async Rust SDK for the GRID esports data APIs"
 license = "MIT-0"
 repository = "https://github.com/blakeanedved/gridgg-rs"
 documentation = "https://docs.rs/gridgg"
 readme = "README.md"
-keywords = ["grid"]
-categories = ["data-structures"]
-include = ["/src", "/README.md", "/LICENSE*"]
+keywords = ["grid", "esports", "graphql", "league-of-legends", "valorant"]
+categories = ["api-bindings", "asynchronous", "web-programming::http-client"]
+include = ["/src", "/build.rs", "/specs/*.graphql", "/examples", "/README.md", "/LICENSE*"]
 
 [lib]
 name = "gridgg"
 path = "src/lib.rs"
 
+[features]
+default = ["events", "files"]
+events = ["dep:tokio-tungstenite", "dep:rustls", "dep:rustls-platform-verifier"]
+files = ["reqwest/stream", "tokio/fs", "tokio/io-util"]
+zip = ["files", "dep:zip", "tokio/rt"]
+
 [dependencies]
+cynic = "3.14"
+reqwest = { version = "0.13", default-features = false, features = ["json", "gzip", "rustls", "http2"] }
+tokio = { version = "1.54", features = ["time", "sync"] }
+tokio-tungstenite = { version = "0.30", optional = true, features = ["rustls-tls-webpki-roots"] }
+rustls = { version = "0.23", optional = true, default-features = false, features = ["aws_lc_rs"] }
+rustls-platform-verifier = { version = "0.7", optional = true }
+jiff = { version = "0.2", features = ["serde"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+secrecy = "0.10"
+url = { version = "2", features = ["serde"] }
+rust_decimal = "1"
+futures-util = "0.3"
+async-stream = "0.3"
+bytes = "1"
+tracing = "0.1"
+zip = { version = "9", optional = true, default-features = false, features = ["deflate"] }
+
+[build-dependencies]
+cynic-codegen = "3.14"
 
 [dev-dependencies]
+tokio = { version = "1.54", features = ["macros", "rt-multi-thread", "net", "test-util"] }
+wiremock = "0.6"
+insta = { version = "1", features = ["json"] }
+zip = { version = "9", default-features = false, features = ["deflate"] }
+
+[[example]]
+name = "files"
+required-features = ["files"]
+
+[[example]]
+name = "events"
+required-features = ["events"]
 
 [lints.rust]
 unsafe_code = "forbid"

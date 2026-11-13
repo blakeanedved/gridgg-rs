@@ -1,0 +1,414 @@
+---
+source: tests/stats.rs
+expression: request_snapshot(&body)
+---
+query TeamGameStatisticsQuery($teamId: ID!, $selection: GameSelection) {
+  teamGameStatistics(teamId: $teamId, selection: $selection) {
+    count
+    won {
+      value
+      count
+      percentage
+      streak {
+        current
+        max
+        min
+      }
+    }
+    score {
+      sum
+      min
+      max
+      avg
+      ratePerMinute {
+        min
+        max
+        avg
+      }
+    }
+    duration {
+      sum
+      min
+      max
+      avg
+    }
+    kills {
+      sum
+      min
+      max
+      avg
+      ratePerMinute {
+        min
+        max
+        avg
+      }
+    }
+    deaths {
+      sum
+      min
+      max
+      avg
+      ratePerMinute {
+        min
+        max
+        avg
+      }
+    }
+    killAssistsGiven {
+      sum
+      min
+      max
+      avg
+      ratePerMinute {
+        min
+        max
+        avg
+      }
+    }
+    killAssistsReceived {
+      sum
+      min
+      max
+      avg
+      ratePerMinute {
+        min
+        max
+        avg
+      }
+    }
+    selfkills {
+      sum
+      min
+      max
+      avg
+      ratePerMinute {
+        min
+        max
+        avg
+      }
+    }
+    teamkills {
+      sum
+      min
+      max
+      avg
+      ratePerMinute {
+        min
+        max
+        avg
+      }
+    }
+    teamkillAssistsGiven {
+      sum
+      min
+      max
+      avg
+      ratePerMinute {
+        min
+        max
+        avg
+      }
+    }
+    teamkillAssistsReceived {
+      sum
+      min
+      max
+      avg
+      ratePerMinute {
+        min
+        max
+        avg
+      }
+    }
+    structuresDestroyed {
+      sum
+      min
+      max
+      avg
+      ratePerMinute {
+        min
+        max
+        avg
+      }
+    }
+    structuresCaptured {
+      sum
+      min
+      max
+      avg
+      ratePerMinute {
+        min
+        max
+        avg
+      }
+    }
+    firstKill {
+      value
+      count
+      percentage
+      streak {
+        current
+        max
+        min
+      }
+    }
+    objectives {
+      type
+      completionCount {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      completedFirst {
+        value
+        count
+        percentage
+        streak {
+          current
+          max
+          min
+        }
+      }
+    }
+    money {
+      sum
+      min
+      max
+      avg
+      ratePerMinute {
+        min
+        max
+        avg
+      }
+    }
+    inventoryValue {
+      sum
+      min
+      max
+      avg
+      ratePerMinute {
+        min
+        max
+        avg
+      }
+    }
+    netWorth {
+      sum
+      min
+      max
+      avg
+      ratePerMinute {
+        min
+        max
+        avg
+      }
+    }
+    unitKills {
+      unitName
+      count {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+    }
+    players {
+      characters {
+        character {
+          id
+          name
+        }
+        count
+        percentage
+      }
+    }
+    __typename
+    ... {
+      __typename
+      ... on TeamGameStatisticsLol {
+        damageDealt {
+          sum
+          min
+          max
+          avg
+          ratePerMinute {
+            min
+            max
+            avg
+          }
+        }
+        damageTaken {
+          sum
+          min
+          max
+          avg
+          ratePerMinute {
+            min
+            max
+            avg
+          }
+        }
+        experiencePoints {
+          sum
+          min
+          max
+          avg
+          ratePerMinute {
+            min
+            max
+            avg
+          }
+        }
+        totalMoneyEarned {
+          sum
+          min
+          max
+          avg
+          ratePerMinute {
+            min
+            max
+            avg
+          }
+        }
+        visionScore {
+          sum
+          min
+          max
+          avg
+          ratePerMinute {
+            min
+            max
+            avg
+          }
+        }
+        forwardPercentage {
+          sum
+          min
+          max
+          avg
+          ratePerMinute {
+            min
+            max
+            avg
+          }
+        }
+        majorMoneyLead {
+          sum
+          min
+          max
+          avg
+          ratePerMinute {
+            min
+            max
+            avg
+          }
+        }
+        majorMoneyDeficit {
+          sum
+          min
+          max
+          avg
+          ratePerMinute {
+            min
+            max
+            avg
+          }
+        }
+        baronPowerPlay {
+          sum
+          min
+          max
+          avg
+          ratePerMinute {
+            min
+            max
+            avg
+          }
+        }
+      }
+      ... on TeamGameStatisticsVal {
+        damageDealt {
+          sum
+          min
+          max
+          avg
+          ratePerMinute {
+            min
+            max
+            avg
+          }
+        }
+        damageTaken {
+          sum
+          min
+          max
+          avg
+          ratePerMinute {
+            min
+            max
+            avg
+          }
+        }
+      }
+    }
+  }
+}
+
+variables: {
+  "selection": {
+    "filter": {
+      "map": {
+        "name": {
+          "equals": "Summoner's Rift"
+        }
+      },
+      "or": [
+        {
+          "tournament": {
+            "id": {
+              "in": [
+                "7"
+              ]
+            }
+          }
+        },
+        {
+          "tournament": {
+            "id": {
+              "in": [
+                "8"
+              ]
+            }
+          }
+        }
+      ],
+      "startedAt": {
+        "period": "LAST_YEAR"
+      },
+      "teams": {
+        "side": {
+          "equals": "blue"
+        }
+      }
+    },
+    "first": 20,
+    "orderBy": [
+      {
+        "direction": "DESC",
+        "field": "STARTED_AT"
+      }
+    ]
+  },
+  "teamId": "47351"
+}

@@ -1,0 +1,472 @@
+---
+source: tests/series_state.rs
+expression: "body[\"query\"].as_str().unwrap()"
+---
+query SeriesStateQuery($id: ID!, $v1_1: Boolean!, $v1_2: Boolean!, $v1_3: Boolean!, $v1_4: Boolean!, $v1_6: Boolean!, $v1_9: Boolean!, $v2_1: Boolean!, $v3_2: Boolean!, $v3_3: Boolean!, $v3_7: Boolean!, $v3_8: Boolean!, $v3_10: Boolean!, $v3_11: Boolean!, $v3_12: Boolean!, $v3_13: Boolean!, $v3_14: Boolean!, $v3_15: Boolean!, $v3_16: Boolean!, $v3_20: Boolean!, $v3_21: Boolean!, $v3_23: Boolean!, $v3_24: Boolean!, $v3_25: Boolean!, $v3_26: Boolean!, $v3_27: Boolean!, $v3_28: Boolean!, $v3_29: Boolean!, $v3_30: Boolean!, $v3_33: Boolean!, $v3_34: Boolean!, $v3_35: Boolean!, $v3_36: Boolean!, $v3_37: Boolean!, $v3_38: Boolean!, $v3_40: Boolean!, $v3_41: Boolean!, $v3_42: Boolean!, $v3_43: Boolean!, $v3_48: Boolean!, $v3_49: Boolean!, $v3_50: Boolean!) {
+  seriesState(id: $id) {
+    id
+    version
+    title @include(if: $v1_1) {
+      nameShortened
+    }
+    format
+    started
+    finished
+    forfeited @include(if: $v3_48)
+    valid
+    invalidationReason @include(if: $v3_49)
+    startedAt @include(if: $v2_1)
+    updatedAt
+    duration @include(if: $v3_14)
+    draftActions {
+      id
+      type
+      sequenceNumber
+      drafter {
+        id
+        type
+      }
+      draftable {
+        id
+        type
+        name
+      }
+    }
+    teams {
+      id
+      name
+      score
+      won
+      kills
+      deaths
+      killAssistsGiven
+      killAssistsReceived
+      selfkills
+      teamkills
+      structuresDestroyed
+      structuresCaptured
+      firstKill @include(if: $v3_10)
+      objectives {
+        id
+        type
+        completionCount
+        completedFirst @include(if: $v3_11)
+      }
+      players {
+        id
+        name
+        participationStatus
+        kills
+        deaths
+        killAssistsGiven
+        killAssistsReceived
+        selfkills
+        teamkills
+        structuresDestroyed
+        structuresCaptured
+        firstKill @include(if: $v3_10)
+        objectives {
+          id
+          type
+          completionCount
+          completedFirst @include(if: $v3_11)
+        }
+        __typename
+        ... {
+          __typename
+          ... on SeriesPlayerStateValorant {
+            headshots
+            teamHeadshots
+          }
+        }
+      }
+      __typename
+      ... {
+        __typename
+        ... on SeriesTeamStateValorant {
+          headshots
+          teamHeadshots
+        }
+      }
+    }
+    games {
+      id
+      sequenceNumber
+      type @include(if: $v3_21)
+      started
+      finished
+      paused
+      forfeited @include(if: $v3_48)
+      valid @include(if: $v3_50)
+      invalidationReason @include(if: $v3_50)
+      startedAt @include(if: $v3_7)
+      duration @include(if: $v3_15)
+      clock @include(if: $v1_3) {
+        id
+        type
+        ticking
+        ticksBackwards
+        currentSeconds
+      }
+      map {
+        id @include(if: $v3_13)
+        name
+      }
+      titleVersion @include(if: $v3_12) {
+        name
+      }
+      externalLinks @include(if: $v1_2) {
+        dataProvider {
+          name
+        }
+        externalEntity {
+          id
+        }
+      }
+      draftActions {
+        id
+        type
+        sequenceNumber
+        drafter {
+          id
+          type
+        }
+        draftable {
+          id
+          type
+          name
+        }
+      }
+      structures {
+        id
+        type
+        side
+        teamId
+        destroyed
+        currentHealth @include(if: $v1_6)
+        maxHealth @include(if: $v1_6)
+      }
+      nonPlayerCharacters {
+        id
+        type
+        side
+        alive
+        respawnClock @include(if: $v1_3) {
+          id
+          type
+          ticking
+          ticksBackwards
+          currentSeconds
+        }
+      }
+      teams {
+        id
+        name
+        side
+        score
+        won
+        kills
+        deaths
+        killAssistsGiven
+        killAssistsReceived
+        selfkills
+        teamkills
+        money
+        loadoutValue
+        netWorth
+        structuresDestroyed
+        structuresCaptured
+        firstKill @include(if: $v3_10)
+        objectives {
+          id
+          type
+          completionCount
+          completedFirst @include(if: $v3_11)
+        }
+        players {
+          id
+          name
+          participationStatus
+          character {
+            id
+            name
+          }
+          roles @include(if: $v3_43) {
+            id
+          }
+          kills
+          deaths
+          killAssistsGiven
+          killAssistsReceived
+          selfkills
+          teamkills
+          money
+          loadoutValue
+          netWorth
+          structuresDestroyed
+          structuresCaptured
+          firstKill @include(if: $v3_10)
+          position {
+            x
+            y
+          }
+          inventory {
+            items {
+              id
+              name
+              quantity
+              equipped
+              stashed
+            }
+          }
+          objectives {
+            id
+            type
+            completionCount
+            completedFirst @include(if: $v3_11)
+          }
+          __typename
+          ... {
+            __typename
+            ... on GamePlayerStateLol {
+              alive
+              currentHealth
+              maxHealth
+              currentArmor
+              experiencePoints
+              respawnClock @include(if: $v3_3) {
+                id
+                type
+                ticking
+                ticksBackwards
+                currentSeconds
+              }
+              totalMoneyEarned @include(if: $v3_2)
+              moneyPerMinute @include(if: $v3_36)
+              moneyPercentage @include(if: $v3_37)
+              damageDealt @include(if: $v3_23)
+              damageTaken @include(if: $v3_23)
+              damagePerMinute @include(if: $v3_24)
+              damagePercentage @include(if: $v3_25)
+              damagePerMoney @include(if: $v3_26)
+              kdaRatio @include(if: $v3_27)
+              killsAndAssists @include(if: $v3_34)
+              killParticipation @include(if: $v3_35)
+              visionScore @include(if: $v3_30)
+              visionScorePerMinute @include(if: $v3_33)
+              forwardPercentage @include(if: $v3_42)
+            }
+            ... on GamePlayerStateValorant {
+              alive @include(if: $v1_9)
+              currentHealth @include(if: $v1_9)
+              maxHealth @include(if: $v1_9)
+              currentArmor @include(if: $v1_9)
+              ultimatePoints @include(if: $v3_20)
+              headshots
+              teamHeadshots
+              damageDealt @include(if: $v3_29)
+              damageTaken @include(if: $v3_29)
+              selfdamageDealt @include(if: $v3_29)
+              selfdamageTaken @include(if: $v3_29)
+              teamdamageDealt @include(if: $v3_29)
+              teamdamageTaken @include(if: $v3_29)
+            }
+          }
+        }
+        __typename
+        ... {
+          __typename
+          ... on GameTeamStateLol {
+            experiencePoints
+            totalMoneyEarned @include(if: $v3_2)
+            moneyDifference @include(if: $v3_28)
+            moneyPerMinute @include(if: $v3_36)
+            majorMoneyLead @include(if: $v3_40)
+            majorMoneyDeficit @include(if: $v3_41)
+            damageDealt @include(if: $v3_23)
+            damageTaken @include(if: $v3_23)
+            damagePerMinute @include(if: $v3_24)
+            damagePerMoney @include(if: $v3_26)
+            kdaRatio @include(if: $v3_27)
+            killsAndAssists @include(if: $v3_34)
+            visionScore @include(if: $v3_30)
+            visionScorePerMinute @include(if: $v3_33)
+            forwardPercentage @include(if: $v3_42)
+            baronPowerPlays @include(if: $v3_38) {
+              id
+              value
+            }
+          }
+          ... on GameTeamStateValorant {
+            headshots
+            teamHeadshots
+            damageDealt @include(if: $v3_29)
+            damageTaken @include(if: $v3_29)
+            selfdamageDealt @include(if: $v3_29)
+            selfdamageTaken @include(if: $v3_29)
+            teamdamageDealt @include(if: $v3_29)
+            teamdamageTaken @include(if: $v3_29)
+          }
+        }
+      }
+      segments @include(if: $v1_4) {
+        id
+        type
+        sequenceNumber
+        started
+        finished
+        startedAt @include(if: $v3_12)
+        duration @include(if: $v3_16)
+        teams {
+          id
+          name
+          side
+          won
+          kills
+          deaths
+          killAssistsGiven
+          killAssistsReceived
+          selfkills
+          teamkills
+          firstKill @include(if: $v3_10)
+          objectives {
+            id
+            type
+            completionCount
+            completedFirst @include(if: $v3_11)
+          }
+          players {
+            id
+            name
+            participationStatus @include(if: $v3_8)
+            kills
+            deaths
+            killAssistsGiven
+            killAssistsReceived
+            selfkills
+            teamkills
+            firstKill @include(if: $v3_10)
+            objectives {
+              id
+              type
+              completionCount
+              completedFirst @include(if: $v3_11)
+            }
+            __typename
+            ... {
+              __typename
+              ... on SegmentPlayerStateValorant {
+                alive @include(if: $v1_9)
+                currentHealth @include(if: $v1_9)
+                maxHealth @include(if: $v1_9)
+                currentArmor @include(if: $v1_9)
+                headshots
+                teamHeadshots
+                damageDealt @include(if: $v3_29)
+                damageTaken @include(if: $v3_29)
+                selfdamageDealt @include(if: $v3_29)
+                selfdamageTaken @include(if: $v3_29)
+                teamdamageDealt @include(if: $v3_29)
+                teamdamageTaken @include(if: $v3_29)
+              }
+            }
+          }
+          __typename
+          ... {
+            __typename
+            ... on SegmentTeamStateValorant {
+              winType @include(if: $v1_9)
+              headshots
+              teamHeadshots
+              damageDealt @include(if: $v3_29)
+              damageTaken @include(if: $v3_29)
+              selfdamageDealt @include(if: $v3_29)
+              selfdamageTaken @include(if: $v3_29)
+              teamdamageDealt @include(if: $v3_29)
+              teamdamageTaken @include(if: $v3_29)
+            }
+          }
+        }
+        segments {
+          id
+          type
+          sequenceNumber
+          started
+          finished
+          startedAt @include(if: $v3_12)
+          duration @include(if: $v3_16)
+          teams {
+            id
+            name
+            side
+            won
+            kills
+            deaths
+            killAssistsGiven
+            killAssistsReceived
+            selfkills
+            teamkills
+            firstKill @include(if: $v3_10)
+            objectives {
+              id
+              type
+              completionCount
+              completedFirst @include(if: $v3_11)
+            }
+            players {
+              id
+              name
+              participationStatus @include(if: $v3_8)
+              kills
+              deaths
+              killAssistsGiven
+              killAssistsReceived
+              selfkills
+              teamkills
+              firstKill @include(if: $v3_10)
+              objectives {
+                id
+                type
+                completionCount
+                completedFirst @include(if: $v3_11)
+              }
+              __typename
+              ... {
+                __typename
+                ... on SegmentPlayerStateValorant {
+                  alive @include(if: $v1_9)
+                  currentHealth @include(if: $v1_9)
+                  maxHealth @include(if: $v1_9)
+                  currentArmor @include(if: $v1_9)
+                  headshots
+                  teamHeadshots
+                  damageDealt @include(if: $v3_29)
+                  damageTaken @include(if: $v3_29)
+                  selfdamageDealt @include(if: $v3_29)
+                  selfdamageTaken @include(if: $v3_29)
+                  teamdamageDealt @include(if: $v3_29)
+                  teamdamageTaken @include(if: $v3_29)
+                }
+              }
+            }
+            __typename
+            ... {
+              __typename
+              ... on SegmentTeamStateValorant {
+                winType @include(if: $v1_9)
+                headshots
+                teamHeadshots
+                damageDealt @include(if: $v3_29)
+                damageTaken @include(if: $v3_29)
+                selfdamageDealt @include(if: $v3_29)
+                selfdamageTaken @include(if: $v3_29)
+                teamdamageDealt @include(if: $v3_29)
+                teamdamageTaken @include(if: $v3_29)
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

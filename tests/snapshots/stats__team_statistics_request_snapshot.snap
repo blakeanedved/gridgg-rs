@@ -1,0 +1,730 @@
+---
+source: tests/stats.rs
+expression: request_snapshot(&body)
+---
+query TeamStatisticsQuery($teamId: ID!, $filter: TeamStatisticsFilter!) {
+  teamStatistics(teamId: $teamId, filter: $filter) {
+    id
+    aggregationSeriesIds
+    series {
+      count
+      won {
+        value
+        count
+        percentage
+        streak {
+          current
+          max
+          min
+        }
+      }
+      score {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      duration {
+        sum
+        min
+        max
+        avg
+      }
+      kills {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      deaths {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      killAssistsGiven {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      killAssistsReceived {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      selfkills {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      teamkills {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      teamkillAssistsGiven {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      teamkillAssistsReceived {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      structuresDestroyed {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      structuresCaptured {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      firstKill {
+        value
+        count
+        percentage
+        streak {
+          current
+          max
+          min
+        }
+      }
+      objectives {
+        type
+        completionCount {
+          sum
+          min
+          max
+          avg
+          ratePerMinute {
+            min
+            max
+            avg
+          }
+        }
+        completedFirst {
+          value
+          count
+          percentage
+          streak {
+            current
+            max
+            min
+          }
+        }
+      }
+    }
+    game {
+      count
+      won {
+        value
+        count
+        percentage
+        streak {
+          current
+          max
+          min
+        }
+      }
+      score {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      duration {
+        sum
+        min
+        max
+        avg
+      }
+      kills {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      deaths {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      killAssistsGiven {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      killAssistsReceived {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      selfkills {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      teamkills {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      teamkillAssistsGiven {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      teamkillAssistsReceived {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      structuresDestroyed {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      structuresCaptured {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      firstKill {
+        value
+        count
+        percentage
+        streak {
+          current
+          max
+          min
+        }
+      }
+      objectives {
+        type
+        completionCount {
+          sum
+          min
+          max
+          avg
+          ratePerMinute {
+            min
+            max
+            avg
+          }
+        }
+        completedFirst {
+          value
+          count
+          percentage
+          streak {
+            current
+            max
+            min
+          }
+        }
+      }
+      money {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      inventoryValue {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      netWorth {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      unitKills {
+        unitName
+        count {
+          sum
+          min
+          max
+          avg
+          ratePerMinute {
+            min
+            max
+            avg
+          }
+        }
+      }
+      players {
+        characters {
+          character {
+            id
+            name
+          }
+          count
+          percentage
+        }
+      }
+      __typename
+      ... {
+        __typename
+        ... on TeamGameStatisticsLol {
+          damageDealt {
+            sum
+            min
+            max
+            avg
+            ratePerMinute {
+              min
+              max
+              avg
+            }
+          }
+          damageTaken {
+            sum
+            min
+            max
+            avg
+            ratePerMinute {
+              min
+              max
+              avg
+            }
+          }
+          experiencePoints {
+            sum
+            min
+            max
+            avg
+            ratePerMinute {
+              min
+              max
+              avg
+            }
+          }
+          totalMoneyEarned {
+            sum
+            min
+            max
+            avg
+            ratePerMinute {
+              min
+              max
+              avg
+            }
+          }
+          visionScore {
+            sum
+            min
+            max
+            avg
+            ratePerMinute {
+              min
+              max
+              avg
+            }
+          }
+          forwardPercentage {
+            sum
+            min
+            max
+            avg
+            ratePerMinute {
+              min
+              max
+              avg
+            }
+          }
+          majorMoneyLead {
+            sum
+            min
+            max
+            avg
+            ratePerMinute {
+              min
+              max
+              avg
+            }
+          }
+          majorMoneyDeficit {
+            sum
+            min
+            max
+            avg
+            ratePerMinute {
+              min
+              max
+              avg
+            }
+          }
+          baronPowerPlay {
+            sum
+            min
+            max
+            avg
+            ratePerMinute {
+              min
+              max
+              avg
+            }
+          }
+        }
+        ... on TeamGameStatisticsVal {
+          damageDealt {
+            sum
+            min
+            max
+            avg
+            ratePerMinute {
+              min
+              max
+              avg
+            }
+          }
+          damageTaken {
+            sum
+            min
+            max
+            avg
+            ratePerMinute {
+              min
+              max
+              avg
+            }
+          }
+        }
+      }
+    }
+    segment {
+      type
+      count
+      won {
+        value
+        count
+        percentage
+        streak {
+          current
+          max
+          min
+        }
+      }
+      wonFirst {
+        value
+        count
+        percentage
+        streak {
+          current
+          max
+          min
+        }
+      }
+      kills {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      deaths {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      killAssistsGiven {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      killAssistsReceived {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      selfkills {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      teamkills {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      teamkillAssistsGiven {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      teamkillAssistsReceived {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      structuresDestroyed {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      structuresCaptured {
+        sum
+        min
+        max
+        avg
+        ratePerMinute {
+          min
+          max
+          avg
+        }
+      }
+      firstKill {
+        value
+        count
+        percentage
+        streak {
+          current
+          max
+          min
+        }
+      }
+      objectives {
+        type
+        completionCount {
+          sum
+          min
+          max
+          avg
+          ratePerMinute {
+            min
+            max
+            avg
+          }
+        }
+        completedFirst {
+          value
+          count
+          percentage
+          streak {
+            current
+            max
+            min
+          }
+        }
+      }
+    }
+  }
+}
+
+variables: {
+  "filter": {
+    "startedAt": {
+      "period": "LAST_3_MONTHS"
+    },
+    "tournament": {
+      "id": {
+        "in": [
+          "7",
+          "8"
+        ]
+      },
+      "includeChildren": false
+    }
+  },
+  "teamId": "47351"
+}

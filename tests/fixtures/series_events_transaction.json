@@ -1,0 +1,46 @@
+{
+  "id": "4b5bd8e2-6c3f-4c2e-9f0e-5a8d0b3f1c11",
+  "correlationId": "c0ffee00-0000-4000-8000-000000000001",
+  "occurredAt": "2026-11-12T18:04:31.25Z",
+  "publishedAt": "2026-11-12T18:04:31.4Z",
+  "seriesId": "2618418",
+  "sequenceNumber": 1342,
+  "sessionSequenceNumber": 17,
+  "events": [
+    {
+      "id": "e-1",
+      "type": "player-killed-player",
+      "includesFullState": false,
+      "actor": {
+        "type": "player",
+        "id": "p-7",
+        "stateDelta": { "kills": 1 },
+        "state": { "id": "p-7", "name": "alpha", "kills": 5 }
+      },
+      "action": "killed",
+      "target": {
+        "type": "player",
+        "id": "p-3",
+        "stateDelta": { "deaths": 1 }
+      },
+      "seriesStateDelta": { "games": [{ "id": "g-1", "teams": [{ "id": "t-1", "kills": 1 }] }] }
+    },
+    {
+      "id": "e-2",
+      "type": "player-!killed-player",
+      "actor": { "type": "player", "id": "p-7", "stateDelta": { "kills": -1 } },
+      "action": "!killed",
+      "target": { "type": "player", "id": "p-3", "stateDelta": { "deaths": -1 } },
+      "revertedEventId": "e-1"
+    },
+    {
+      "id": "e-3",
+      "type": "drone-zapped-player",
+      "includesFullState": true,
+      "actor": { "type": "drone", "id": "d-1" },
+      "action": "zapped",
+      "target": { "type": "player", "id": "p-3" },
+      "seriesState": { "id": "2618418", "started": true, "finished": false }
+    }
+  ]
+}

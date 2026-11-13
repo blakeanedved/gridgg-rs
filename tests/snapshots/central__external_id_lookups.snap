@@ -1,0 +1,13 @@
+---
+source: tests/central.rs
+expression: body
+---
+{
+  "operationName": "TeamIdByExternalIdQuery",
+  "query": "query TeamIdByExternalIdQuery($dataProviderName: String!, $externalId: ID!, $titleId: ID!) {\n  teamIdByExternalId(dataProviderName: $dataProviderName, externalTeamId: $externalId, titleId: $titleId)\n}\n",
+  "variables": {
+    "dataProviderName": "RIOT",
+    "externalId": "t-1",
+    "titleId": "3"
+  }
+}

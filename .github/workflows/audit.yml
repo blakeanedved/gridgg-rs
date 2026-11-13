@@ -1,0 +1,26 @@
+name: Audit
+
+on:
+  push:
+    branches: [main]
+    paths: [Cargo.toml, Cargo.lock, .github/workflows/audit.yml]
+  pull_request:
+    paths: [Cargo.toml, Cargo.lock, .github/workflows/audit.yml]
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC: catch advisories published after a merge
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cargo-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-audit
+      # Fails on vulnerabilities; unmaintained/yanked crates are reported as warnings.
+      - run: cargo audit
